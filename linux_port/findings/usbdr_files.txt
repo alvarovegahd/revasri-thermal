@@ -1,0 +1,11 @@
+/home/alvaro/Documents/GitHub/revasri-thermal/linux_port/decompiled/sources/com/serenegiant/usbdr/UVCCamera.java
+/home/alvaro/Documents/GitHub/revasri-thermal/linux_port/decompiled/sources/com/serenegiant/usbdr/ILFLFrameCallBack.java
+/home/alvaro/Documents/GitHub/revasri-thermal/linux_port/decompiled/sources/com/serenegiant/usbdr/Size.java
+/home/alvaro/Documents/GitHub/revasri-thermal/linux_port/decompiled/sources/com/serenegiant/usbdr/IORCallback.java
+/home/alvaro/Documents/GitHub/revasri-thermal/linux_port/decompiled/sources/com/serenegiant/usbdr/USBMonitor.java
+/home/alvaro/Documents/GitHub/revasri-thermal/linux_port/decompiled/sources/com/serenegiant/usbdr/ITemperatureCallback.java
+/home/alvaro/Documents/GitHub/revasri-thermal/linux_port/decompiled/sources/com/serenegiant/usbdr/USBVendorId.java
+/home/alvaro/Documents/GitHub/revasri-thermal/linux_port/decompiled/sources/com/serenegiant/usbdr/IFrameCallback.java
+/home/alvaro/Documents/GitHub/revasri-thermal/linux_port/decompiled/sources/com/serenegiant/usbdr/IStatusCallback.java
+/home/alvaro/Documents/GitHub/revasri-thermal/linux_port/decompiled/sources/com/serenegiant/usbdr/IButtonCallback.java
+/home/alvaro/Documents/GitHub/revasri-thermal/linux_port/decompiled/sources/com/serenegiant/usbdr/DeviceFilter.java
