@@ -3,6 +3,28 @@
 Goal: take the Android APK that ships with this camera (`Camera+App_v1.0.2.25121301.apk`)
 and reproduce just enough of its USB protocol on Linux to capture and decode frames.
 
+## TL;DR — current best live viewer on Linux
+
+```bash
+conda activate thermal-cam
+python linux_port/32_live_view.py
+```
+
+`32_live_view.py` is the **current recommended live thermal viewer**. It uses
+the chunk-aware wire format recovered with the Frida tracer
+(`29_frida_trace.py`, see [FINDINGS.md](FINDINGS.md) → "Wire-Level Chunk
+Format"), so it doesn't need byte-scanning sync heuristics like the older
+`17_live_view.py`.  In-window keys: `q` quit, `r` recapture NUC reference,
+`s` save the current frame to `captures/live_<ts>.npy`.
+
+Known open issues as of last session (see end of this README for status):
+
+- frame rate on Linux is ~5-6 fps vs ~12-16 fps observed in the Android app;
+  the `--no-heartbeat` flag is the first knob to try
+- the on-camera FFC shutter heartbeat (`0x80 0x00` to EP `0x06`) is what
+  causes the audible shutter click, but its current 2 s period may be too
+  aggressive — `--heartbeat-period 10` is worth trying
+
 ## Hardware
 
 USB device `04b4:000a` (Cypress FX2/FX3 bridge), serial `C501000-ABI0608`, vendor
@@ -48,6 +70,11 @@ Run scripts in order. Each one is idempotent — re-running won't break a fresh 
 | `26_row_header_probe.py`          | Tests native `row+6` flag / `row+12` payload header hypothesis.           |
 | `27_list_device_commands.py`      | Static, no-device scan for embedded shell/`ir_cmd` command strings.       |
 | `28_usb_shell_probe.py`           | Guarded experimental read-only probe for the USB command channel.         |
+| `29_frida_trace.py`               | Frida USB tracer for the running Android app (needs root + frida-server). |
+| `30_cold_init_guide.sh`           | Guided cold-start capture wizard for the Frida tracer.                    |
+| `31_decode_frida_chunks.py`       | Decodes the 12-B chunk header from a Frida JSONL trace.                   |
+| **`32_live_view.py`**             | **Chunk-aware live thermal viewer on Linux — current best.**              |
+| `33_probe_linux_stride.py`        | Diagnostic that confirms the 14 348-B chunk stride on Linux.              |
 
 Re-running the setup pipeline from scratch:
 
@@ -80,3 +107,28 @@ display path. The APK's native code sends the raw 256x196 buffer through
 `ALCall`, which performs NUC, bad-pixel correction, stripe removal, temporal
 filtering, and palette mapping. The Python viewer is useful for inspection, but
 the final Linux port should reproduce or call that processing path.
+
+## Open issues on the live viewer (32_live_view.py)
+
+End-of-session status, kept here so it's the first thing to look at next time:
+
+1. **Frame rate is ~5-6 fps**, well below the ~12-16 fps the camera produces
+   when driven by the Android app.  `33_probe_linux_stride.py` confirms the
+   wire-level chunk format and stride are correct on Linux, so the bottleneck
+   is host-side and not the camera.  Suspects in order of likelihood:
+     - The FFC heartbeat write to EP `0x06` colliding with EP `0x82` reads
+       (pyusb default sync API, single backend lock).  Try
+       `--no-heartbeat` first — if FPS jumps, the fix is to either move
+       writes off the read thread (libusb async) or coordinate them.
+     - matplotlib `FuncAnimation` overhead in `update()` (full redraw at
+       every frame).  If `--no-heartbeat` doesn't help, switch the renderer
+       to `cv2.imshow` or `pyqtgraph`.
+     - pyusb per-call overhead.  Worst case, drop to `libusb1` Python
+       bindings and use async transfers.
+2. **NUC subtraction with the disk-cached `nuc_ref.npy` is stale** — after
+   any session it's wise to recapture in-app (`r`).  We could also detect
+   "stale NUC" automatically by watching the per-pixel offset variance.
+3. **Image grain** with stale NUC is severe; with a fresh recapture it's
+   acceptable but still grainier than Android.  That's likely because we
+   only do NUC subtraction, while the APK runs the full `ALCall` pipeline
+   (NUC + bad-pixel + stripe + temporal filter + palette).  See FINDINGS.md.
