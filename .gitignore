@@ -1,0 +1,46 @@
+# --- Generated/downloaded artifacts in linux_port/ -----------------------
+# All of these are reproducible from the numbered scripts; keeping them out
+# of git keeps the repo small.
+
+# Downloaded toolchains (jadx, ghidra, etc.) — 04_install_jadx.sh / 19_install_ghidra.sh
+linux_port/tools/
+
+# Unzipped APK — regenerable by 02_extract_apk.sh
+linux_port/apk_extracted/
+
+# jadx output — regenerable by 05_decompile_dex.sh
+linux_port/decompiled/
+
+# Ghidra DB / workspace — regenerable by 20_analyze_lib.sh on the .so files
+linux_port/ghidra_project/
+linux_port/decompiled_native/
+
+# `strings` output of native libs — regenerable by 03_strings_native.sh
+linux_port/strings/
+
+# Raw camera captures, Frida JSONL traces, reconstructed frame .bin files
+linux_port/captures/
+
+# NUC reference + other on-device calibration captures
+linux_port/calibration/
+
+# Python bytecode
+linux_port/__pycache__/
+__pycache__/
+*.pyc
+
+# --- Ghidra working files anywhere --------------------------------------
+*.gpr
+*.rep
+*.lock
+*.lock~
+
+# --- Editor / OS junk ---------------------------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# --- Empty/stray file noticed at repo root ------------------------------
+/151
